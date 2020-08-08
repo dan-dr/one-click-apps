@@ -1,0 +1,99 @@
+{
+    "captainVersion": "2",
+    "documentation": "Taken from https://hub.docker.com/r/posthog/posthog",
+    "displayName": "",
+    "description": "PostHog is a developer-friendly, self-hosted product analytics.",
+    "dockerCompose": {
+        "version": "3",
+        "services": {
+            "$$cap_appname-db": {
+                "image": "postgres:$$cap_postgres_version",
+                "notExposeAsWebApp": "true",
+                "volumes": ["$$cap_appname-db-data:/var/lib/postgresql/data"],
+                "restart": "always",
+                "environment": {
+                    "POSTGRES_USER": "$$cap_pg_user",
+                    "POSTGRES_PASSWORD": "$$cap_pg_pass",
+                    "POSTGRES_DB": "$$cap_pg_db",
+                    "POSTGRES_INITDB_ARGS": "$$cap_pg_initdb_args"
+                }
+            },
+            "$$cap_appname-redis": {
+                "notExposeAsWebApp": "true",
+                "image": "redis:$$cap_redis_version",
+                "volumes": ["$$cap_appname-redis-data:/data"],
+                "restart": "always"
+            },
+            "$$cap_appname": {
+                "depends_on": ["$$cap_appname-db", "$$cap_appname-redis"],
+                "image": "posthog/posthog:$$cap_posthog_version",
+                "containerHttpPort": "8000",
+                "restart": "always",
+                "environment": {
+                    "IS_DOCKER": "true",
+                    "DATABASE_URL": "postgres://$$cap_pg_user:$$cap_pg_pass@srv-captain--$$cap_appname-db:5432/$$cap_pg_db",
+                    "REDIS_URL": "redis://src-captain--$$cap_appname-redis:6379/",
+                    "SECRET_KEY": "$$cap_secret_key"
+                }
+            }
+        }
+    },
+    "instructions": {
+        "start": "PostHog provides open source product analytics, built for developers. Automate the collection of every event on your website or app, with no need to send data to 3rd parties. It's just 1 click to deploy on your own infrastructure, with full API/SQL access to the underlying data.",
+        "end": "PostHog is deployed! You can connect in http://$$cap_appname.$$cap_root_domain"
+    },
+    "variables": [
+        {
+            "id": "$$cap_postgres_version",
+            "label": "Postgres Version",
+            "defaultValue": "9.6",
+            "description": "Check out their Docker page for the valid tags https://hub.docker.com/r/library/postgres/tags/",
+            "validRegex": "/^([^\\s^\\/])+$/"
+        },
+        {
+            "id": "$$cap_pg_user",
+            "label": "Postgres Username",
+            "description": "",
+            "validRegex": "/.{1,}/"
+        },
+        {
+            "id": "$$cap_pg_pass",
+            "label": "Postgres Password",
+            "description": "",
+            "validRegex": "/.{1,}/"
+        },
+        {
+            "id": "$$cap_pg_db",
+            "label": "Postgres Default Database",
+            "defaultValue": "posthog",
+            "description": "",
+            "validRegex": "/.{1,}/"
+        },
+        {
+            "id": "$$cap_pg_initdb_args",
+            "label": "OPTIONAL: Arguments for 'postgres initdb'",
+            "description": "For example, --data-checksums",
+            "validRegex": "/.{0,}/"
+        },
+        {
+            "id": "$$cap_redis_version",
+            "label": "Redis Version",
+            "defaultValue": "alpine",
+            "description": "Check out their Docker page for the valid tags https://hub.docker.com/_/redis?tab=tags",
+            "validRegex": "/^([^\\s^\\/])+$/"
+        },
+        {
+            "id": "$$cap_posthog_version",
+            "label": "Posthog Version",
+            "defaultValue": "latest",
+            "description": "Check out their Docker page for the valid tags https://hub.docker.com/r/posthog/posthog/tags",
+            "validRegex": "/^([^\\s^\\/])+$/"
+        },
+        {
+            "id": "$$cap_secret_key",
+            "label": "Secret Key",
+            "description": "Randomly generated secret key.",
+            "validRegex": "/^([a-zA-Z0-9])+$/"
+        }
+    ]
+}
