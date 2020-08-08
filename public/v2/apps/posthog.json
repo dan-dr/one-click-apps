@@ -30,10 +30,12 @@
                 "containerHttpPort": "8000",
                 "restart": "always",
                 "environment": {
-                    "IS_DOCKER": "true",
                     "DATABASE_URL": "postgres://$$cap_pg_user:$$cap_pg_pass@srv-captain--$$cap_appname-db:5432/$$cap_pg_db",
-                    "REDIS_URL": "redis://src-captain--$$cap_appname-redis:6379/",
-                    "SECRET_KEY": "$$cap_secret_key"
+                    "REDIS_URL": "redis://srv-captain--$$cap_appname-redis:6379/",
+                    "SECRET_KEY": "$$cap_secret_key",
+                    "IS_DOCKER": "TRUE",
+                    "IS_BEHIND_PROXY": "TRUE",
+                    "DISABLE_SECURE_SSL_REDIRECT": "TRUE"
                 }
             }
         }
@@ -46,7 +48,7 @@
         {
             "id": "$$cap_postgres_version",
             "label": "Postgres Version",
-            "defaultValue": "9.6",
+            "defaultValue": "alpine",
             "description": "Check out their Docker page for the valid tags https://hub.docker.com/r/library/postgres/tags/",
             "validRegex": "/^([^\\s^\\/])+$/"
         },
@@ -60,7 +62,7 @@
             "id": "$$cap_pg_pass",
             "label": "Postgres Password",
             "description": "",
-            "validRegex": "/.{1,}/"
+            "validRegex": "/^([a-zA-Z0-9])+$/"
         },
         {
             "id": "$$cap_pg_db",
@@ -93,7 +95,7 @@
             "id": "$$cap_secret_key",
             "label": "Secret Key",
             "description": "Randomly generated secret key.",
-            "validRegex": "/^([a-zA-Z0-9])+$/"
+            "validRegex": "/.{1,}/"
         }
     ]
 }
